@@ -1,0 +1,170 @@
+<?xml version="1.0"?>
+
+<robot name="CubeBot" xmlns:xacro="http://ros.org/wiki/xacro">
+    <!-- Properties -->
+    <!-- Colors -->
+    <xacro:property name="Black" value="0.1 0.1 0.1 1" />
+    <xacro:property name="Grey" value="0.35 0.35 0.35 1" />
+    <xacro:property name="Orange" value=".9569 .5372 .2588 1" />
+    <xacro:property name="Blue" value=".0157 .1176 .6588 0.8" />
+    <xacro:property name="Maize" value=".9451 .7686 0 1" />
+    <xacro:property name="LightGrey" value="0.75 0.75 0.75 1" />
+    <xacro:property name="Red" value="0.8 0.1 0.1 1" />
+    <xacro:property name="Green" value="0.1 0.8 0.1 1" />
+    <xacro:property name="Purple" value="0.8 0.1 0.8 1" />
+    <!-- Physical Properties -->
+    <xacro:property name="BodyLen" value="0.3" />
+    <xacro:property name="BodyMass" value="0.1" />
+    <xacro:property name="BodyInertialValue" value="${1/6*BodyMass*BodyLen*BodyLen}" />
+    <xacro:property name="CornerMass" value="0.01" />
+    <xacro:property name="CornerRadius" value="0.03" />
+    <xacro:property name="CornerInertialValue" value="${2/5*CornerMass*CornerRadius*CornerRadius}" />
+    <xacro:property name="CornerOffset" value="${BodyLen/2}" />
+    <xacro:property name="WheelMass" value="0.25" />
+    <xacro:property name="WheelRadius1" value="0.1" />
+    <xacro:property name="WheelRadius2" value="0.08" />
+    <xacro:property name="WheelHeight" value="0.01" />
+    <xacro:property name="WheelInertialValue1" value="${1/12*WheelMass*(3*(WheelRadius2*WheelRadius2+WheelRadius1*WheelRadius1)+WheelHeight*WheelHeight)}" />
+    <xacro:property name="WheelInertialValue2" value="${1/2*WheelMass*(WheelRadius2*WheelRadius2+WheelRadius1*WheelRadius1)}" />
+    <xacro:property name="WheelOffset" value="${BodyLen/2}" />
+
+    <!-- Color Definitions-->
+    <xacro:macro name="Mat" params="cname color">
+        <material name="${cname}">
+            <color rgba="${color}"/>
+        </material>
+    </xacro:macro>
+    <xacro:Mat cname="Black" color="${Black}"/>
+    <xacro:Mat cname="Grey" color="${Grey}"/>
+    <xacro:Mat cname="Orange" color="${Orange}"/>
+    <xacro:Mat cname="Blue" color="${Blue}"/>
+    <xacro:Mat cname="Maize" color="${Maize}"/>
+    <xacro:Mat cname="LightGrey" color="${LightGrey}"/>
+    <xacro:Mat cname="Red" color="${Red}"/>
+    <xacro:Mat cname="Green" color="${Green}"/>
+    <xacro:Mat cname="Purple" color="${Purple}"/>
+    
+    <!-- Link Definitions-->
+    <xacro:macro name="CubeBody" params="cname color">
+        <link name="CubeBody">
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <geometry>
+                    <box size="${BodyLen} ${BodyLen} ${BodyLen}"/>
+                </geometry>
+                <material name="${cname}">
+                    <color rgba="${color}"/>
+                </material>
+            </visual>
+            <collision>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <geometry>
+                    <box size="${BodyLen} ${BodyLen} ${BodyLen}"/>
+                </geometry>
+                <!-- <contact_coefficient mu="0"  resitution="0"  k_p="0"  k_d="0" /> -->
+            </collision>
+            <inertial>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <mass value="${BodyMass}"/>
+                <inertia ixx="${BodyInertialValue}" ixy="0" ixz="0" iyy="${BodyInertialValue}" iyz="0.0" izz="${BodyInertialValue}"/>
+            </inertial>
+        </link>
+    </xacro:macro>
+
+    <xacro:macro name="CornerBumper" params="id_num cname color">
+        <link name="CornerBumper_${id_num}">
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <geometry>
+                    <sphere radius="${CornerRadius}"/>
+                </geometry>
+                <material name="${cname}">
+                    <color rgba="${color}"/>
+                </material>
+            </visual>
+            <collision>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <geometry>
+                    <sphere radius="${CornerRadius}"/>
+                </geometry>
+                <!-- <contact_coefficient mu="0"  resitution="0"  k_p="0"  k_d="0" /> -->
+            </collision>
+            <inertial>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <mass value="${CornerMass}"/>
+                <inertia ixx="${CornerInertialValue}" ixy="0" ixz="0" iyy="${CornerInertialValue}" iyz="0.0" izz="${CornerInertialValue}"/>
+            </inertial>
+        </link>
+    </xacro:macro>
+
+    <xacro:macro name="InertialWheel" params="id_num cname color">
+        <link name="InertialWheel_${id_num}">
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <geometry>
+                    <cylinder length="${WheelHeight}" radius="${WheelRadius2}"/>
+                </geometry>
+                <!-- <contact_coefficient mu="0"  resitution="0"  k_p="0"  k_d="0" /> -->
+                <material name="${cname}">
+                    <color rgba="${color}"/>
+                </material>
+            </visual>
+            <inertial>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <mass value="${WheelMass}"/>
+                <inertia ixx="${WheelInertialValue1}" ixy="0" ixz="0" iyy="${WheelInertialValue1}" iyz="0.0" izz="${WheelInertialValue2}"/>
+            </inertial>
+        </link>
+    </xacro:macro>
+
+    <!-- Joint Definitions -->
+    <xacro:macro name="fixedJoint" params="parent child pos rot">
+        <joint name="$fixed_${parent}_${child}" type="fixed">
+            <origin xyz="${pos}" rpy="${rot}"/>
+            <parent link="${parent}" />
+            <child link="${child}" />
+        </joint>
+    </xacro:macro>
+    <xacro:macro name="continuous" params="parent child pos rot axis damp fric">
+        <joint name="$continuous_${parent}_${child}" type="continuous">
+            <origin xyz="${pos}" rpy="${rot}"/>
+            <parent link="${parent}" />
+            <child link="${child}" />
+            <axis xyz="${axis}"/>
+            <dynamics damping="${damp}" friction="${fric}"/>
+        </joint>
+    </xacro:macro>
+      
+    <!-- Links -->
+    <xacro:CubeBody cname="Blue" color="${Blue}"/>
+    <xacro:CornerBumper id_num = "1" cname="Maize" color="${Maize}" />
+    <xacro:CornerBumper id_num = "2" cname="Red" color="${Red}" />
+    <xacro:CornerBumper id_num = "3" cname="Red" color="${Red}" />
+    <xacro:CornerBumper id_num = "4" cname="Red" color="${Red}" />
+    <xacro:CornerBumper id_num = "5" cname="Red" color="${Red}" />
+    <xacro:CornerBumper id_num = "6" cname="Red" color="${Red}" />
+    <xacro:CornerBumper id_num = "7" cname="Red" color="${Red}" />
+    <xacro:CornerBumper id_num = "8" cname="Red" color="${Red}" />
+    <xacro:InertialWheel id_num = "1" cname="Orange" color="${Orange}" />
+    <xacro:InertialWheel id_num = "2" cname="Orange" color="${Orange}" />
+    <xacro:InertialWheel id_num = "3" cname="Orange" color="${Orange}" />
+    <xacro:InertialWheel id_num = "4" cname="Orange" color="${Orange}" />
+    <xacro:InertialWheel id_num = "5" cname="Orange" color="${Orange}" />
+    <xacro:InertialWheel id_num = "6" cname="Orange" color="${Orange}" />
+
+    <!-- Joints -->
+    <xacro:fixedJoint parent="CubeBody" child="CornerBumper_1" pos="${CornerOffset} ${CornerOffset} ${CornerOffset}" rot="0 0 0" />
+    <xacro:fixedJoint parent="CubeBody" child="CornerBumper_2" pos="-${CornerOffset} ${CornerOffset} ${CornerOffset}" rot="0 0 0" />
+    <xacro:fixedJoint parent="CubeBody" child="CornerBumper_3" pos="${CornerOffset} -${CornerOffset} ${CornerOffset}" rot="0 0 0" />
+    <xacro:fixedJoint parent="CubeBody" child="CornerBumper_4" pos="-${CornerOffset} -${CornerOffset} ${CornerOffset}" rot="0 0 0" />
+    <xacro:fixedJoint parent="CubeBody" child="CornerBumper_5" pos="${CornerOffset} ${CornerOffset} -${CornerOffset}" rot="0 0 0" />
+    <xacro:fixedJoint parent="CubeBody" child="CornerBumper_6" pos="-${CornerOffset} ${CornerOffset} -${CornerOffset}" rot="0 0 0" />
+    <xacro:fixedJoint parent="CubeBody" child="CornerBumper_7" pos="${CornerOffset} -${CornerOffset} -${CornerOffset}" rot="0 0 0" />
+    <xacro:fixedJoint parent="CubeBody" child="CornerBumper_8" pos="-${CornerOffset} -${CornerOffset} -${CornerOffset}" rot="0 0 0" />
+    <xacro:continuous parent="CubeBody" child="InertialWheel_1" pos="${WheelOffset} 0 0" rot="0 1.57075 0"  axis="0 0 1" damp="0" fric="0" />
+    <xacro:continuous parent="CubeBody" child="InertialWheel_2" pos="-${WheelOffset} 0 0" rot="0 1.57075 0"  axis="0 0 1" damp="0" fric="0" />
+    <xacro:continuous parent="CubeBody" child="InertialWheel_3" pos="0 ${WheelOffset} 0" rot="1.57075 0 0"  axis="0 0 1" damp="0" fric="0" />
+    <xacro:continuous parent="CubeBody" child="InertialWheel_4" pos="0 -${WheelOffset} 0" rot="1.57075 0 0"  axis="0 0 1" damp="0" fric="0" />
+    <xacro:continuous parent="CubeBody" child="InertialWheel_5" pos="0 0 ${WheelOffset}" rot="0 0 1.57075"  axis="0 0 1" damp="0" fric="0" />
+    <xacro:continuous parent="CubeBody" child="InertialWheel_6" pos="0 0 -${WheelOffset}" rot="0 0 1.57075"  axis="0 0 1" damp="0" fric="0" />
+</robot>
