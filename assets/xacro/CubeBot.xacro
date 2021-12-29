@@ -138,13 +138,13 @@
     <!-- Links -->
     <xacro:CubeBody cname="Blue" color="${Blue}"/>
     <xacro:CornerBumper id_num = "1" cname="Maize" color="${Maize}" />
-    <xacro:CornerBumper id_num = "2" cname="Red" color="${Red}" />
-    <xacro:CornerBumper id_num = "3" cname="Red" color="${Red}" />
-    <xacro:CornerBumper id_num = "4" cname="Red" color="${Red}" />
-    <xacro:CornerBumper id_num = "5" cname="Red" color="${Red}" />
-    <xacro:CornerBumper id_num = "6" cname="Red" color="${Red}" />
-    <xacro:CornerBumper id_num = "7" cname="Red" color="${Red}" />
-    <xacro:CornerBumper id_num = "8" cname="Red" color="${Red}" />
+    <xacro:CornerBumper id_num = "2" cname="Purple" color="${Purple}" />
+    <xacro:CornerBumper id_num = "3" cname="Purple" color="${Purple}" />
+    <xacro:CornerBumper id_num = "4" cname="Purple" color="${Purple}" />
+    <xacro:CornerBumper id_num = "5" cname="Purple" color="${Purple}" />
+    <xacro:CornerBumper id_num = "6" cname="Purple" color="${Purple}" />
+    <xacro:CornerBumper id_num = "7" cname="Purple" color="${Purple}" />
+    <xacro:CornerBumper id_num = "8" cname="Purple" color="${Purple}" />
     <xacro:InertialWheel id_num = "1" cname="Orange" color="${Orange}" />
     <xacro:InertialWheel id_num = "2" cname="Orange" color="${Orange}" />
     <xacro:InertialWheel id_num = "3" cname="Orange" color="${Orange}" />
