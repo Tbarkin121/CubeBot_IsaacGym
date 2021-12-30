@@ -11,14 +11,17 @@ class CubeBot(VecTask):
         self.cfg = cfg
 
         self.reset_dist = self.cfg["env"]["resetDist"]
-
-        self.max_push_effort = self.cfg["env"]["maxEffort"]
         self.max_episode_length = self.cfg["env"]["maxEpisodeLength"]
-
+        self.stiffness = self.cfg["env"]["stiffness"]
+        self.damping = self.cfg["env"]["damping"]
+        self.maxSpeed = self.cfg["env"]["maxSpeed"]
+        self.maxTorque = self.cfg["env"]["maxTorque"]
+        self.friction = self.cfg["env"]["friction"]
+        self.angularDamping = self.cfg["env"]["angularDamping"]
         # 3 reaction-wheel velocities
         # cube orientation
         # cube velocity
-        self.cfg["env"]["numObservations"] = 22
+        self.cfg["env"]["numObservations"] = 19
         # Drive signal for each of the three primary axis reaction wheels
         self.cfg["env"]["numActions"] = 6
 
@@ -31,20 +34,20 @@ class CubeBot(VecTask):
 
         actor_root_state = self.gym.acquire_actor_root_state_tensor(self.sim)
         self.root_states = gymtorch.wrap_tensor(actor_root_state)
-        self.root_pos = self.root_states.view(self.num_envs, 2, 13)[..., 0, 0:3] #num_envs, num_actors, 13 (pos,ori,Lvel,Avel)
+        self.root_pos = self.root_states.view(self.num_envs, 1, 13)[..., 0, 0:3] #num_envs, num_actors, 13 (pos,ori,Lvel,Avel)
 
         rb_state_tensor = self.gym.acquire_rigid_body_state_tensor(self.sim)
         self.rb_state = gymtorch.wrap_tensor(rb_state_tensor)
-        self.rb_pos = self.rb_state.view(self.num_envs, 16, 13)[..., 0:16, 0:3] #num_envs, num_rigid_bodies, 13 (pos,ori,Lvel,Avel)
-        self.corner1_pos = self.rb_state.view(self.num_envs, 16, 13)[..., self.body_dict['CornerBumper_1'], 0:3] #num_envs, num_rigid_bodies, 13 (pos,ori,Lvel,Avel)
+        self.rb_pos = self.rb_state.view(self.num_envs, 15, 13)[..., 0:15, 0:3] #num_envs, num_rigid_bodies, 13 (pos,ori,Lvel,Avel)
+        self.corner1_pos = self.rb_state.view(self.num_envs, 15, 13)[..., self.body_dict['CornerBumper_1'], 0:3] #num_envs, num_rigid_bodies, 13 (pos,ori,Lvel,Avel)
         
-        self.target_pos = torch.tensor([0, 0, 0])
+        # self.target_pos = torch.tensor([0, 0, 0])
         self.target_idx = torch.tensor(0.0)
 
     def create_sim(self):
         # set the up axis to be z-up given that assets are y-up by default
         self.up_axis_idx = self.set_sim_params_up_axis(self.sim_params, 'z')
-
+        # self.sim_params.gravity = gymapi.Vec3(0.0, 0.0, 0.0)
         self.sim = super().create_sim(self.device_id, self.graphics_device_id, self.physics_engine, self.sim_params)
         self._create_ground_plane()
         self._create_envs(self.num_envs, self.cfg["env"]['envSpacing'], int(np.sqrt(self.num_envs)))
@@ -74,8 +77,8 @@ class CubeBot(VecTask):
 
         asset_options = gymapi.AssetOptions()
         asset_options.fix_base_link = False
-        asset_options.angular_damping = 0.0
-        asset_options.max_angular_velocity = 10000
+        asset_options.angular_damping = self.angularDamping
+        asset_options.max_angular_velocity = self.maxSpeed
 
         cartpole_asset = self.gym.load_asset(self.sim, asset_root, asset_file, asset_options)
         self.num_dof = self.gym.get_asset_dof_count(cartpole_asset)
@@ -89,7 +92,7 @@ class CubeBot(VecTask):
         pose.r = gymapi.Quat(0.0, 0.0, 0.0, 1.0)
 
         self.cartpole_handles = []
-        self.target_handles = []
+        # self.target_handles = []
         self.envs = []
         for i in range(self.num_envs):
             # create env instance
@@ -100,21 +103,22 @@ class CubeBot(VecTask):
             dof_props = self.gym.get_actor_dof_properties(env_ptr, cartpole_handle)
     
             dof_props['driveMode'][:] = gymapi.DOF_MODE_VEL
-            dof_props['stiffness'][:] = 0.0
-            dof_props['damping'][:] = 10000.0
-            dof_props['velocity'][:] = 10000.0
-            dof_props['effort'][:] = 2.5
-            dof_props['friction'][:] = 0.0
+            dof_props['stiffness'][:] = self.stiffness
+            dof_props['damping'][:] = self.damping
+            dof_props['velocity'][:] = self.maxSpeed
+            dof_props['effort'][:] = self.maxTorque
+            dof_props['friction'][:] = self.friction
+
 
             self.gym.set_actor_dof_properties(env_ptr, cartpole_handle, dof_props)
 
             self.envs.append(env_ptr)
             self.cartpole_handles.append(cartpole_handle)
 
-            target_pose = gymapi.Transform()
-            target_handle = self.gym.create_actor(env_ptr, target_asset, target_pose, "target", i, 1, 0)
-            self.gym.set_rigid_body_color(env_ptr, target_handle, 0, gymapi.MESH_VISUAL, gymapi.Vec3(0.2, 0.8, 0.2))
-            self.target_handles.append(target_handle)
+            # target_pose = gymapi.Transform()
+            # target_handle = self.gym.create_actor(env_ptr, target_asset, target_pose, "target", i, 1, 0)
+            # self.gym.set_rigid_body_color(env_ptr, target_handle, 0, gymapi.MESH_VISUAL, gymapi.Vec3(0.2, 0.8, 0.2))
+            # self.target_handles.append(target_handle)
 
         self.body_dict = self.gym.get_actor_rigid_body_dict(env_ptr, cartpole_handle)
         for b in self.body_dict:
@@ -158,8 +162,8 @@ class CubeBot(VecTask):
         #                                 0], 
         #                                 device=self.device)
         # self.target_idx += 1
-        target_pos_envs = self.target_pos.repeat(len(env_ids),1)
-        self.obs_buf[env_ids, 19:22] = target_pos_envs
+        # target_pos_envs = self.target_pos.repeat(len(env_ids),1)
+        # self.obs_buf[env_ids, 19:22] = target_pos_envs
 
         # Update the position of the target ball (Not working yet)
         # target_pose = gymapi.Transform()
@@ -178,15 +182,15 @@ class CubeBot(VecTask):
         self.dof_pos[env_ids, :] = positions[:]
         self.dof_vel[env_ids, :] = velocities[:]
 
-        # env_ids_int32 = env_ids.to(dtype=torch.int32, device=self.device)
-        # self.gym.set_dof_state_tensor_indexed(self.sim,
-        #                                       gymtorch.unwrap_tensor(self.dof_state),
-        #                                       gymtorch.unwrap_tensor(env_ids_int32), len(env_ids_int32))
+        env_ids_int32 = env_ids.to(dtype=torch.int32, device=self.device)
+        self.gym.set_dof_state_tensor_indexed(self.sim,
+                                              gymtorch.unwrap_tensor(self.dof_state),
+                                              gymtorch.unwrap_tensor(env_ids_int32), len(env_ids_int32))
   
         self.reset_buf[env_ids] = 0
         self.progress_buf[env_ids] = 0
 
-        self.target_pos = torch.cat(torch.rand( 2 , device=self.device ), torch.tensor(0))
+        # self.target_pos = torch.cat(torch.rand( 2 , device=self.device ), torch.tensor(0))
 
     def pre_physics_step(self, actions):
         # print('actions')
@@ -195,7 +199,7 @@ class CubeBot(VecTask):
         # print(actions.to(self.device).squeeze() * self.max_push_effort)
         # print(actions.to(self.device).squeeze().shape())
         self.actions = actions.clone().to(self.device)
-        targets = self.actions*200
+        targets = self.actions*self.maxSpeed
         # self.gym.set_dof_actuation_force_tensor(self.sim, gymtorch.unwrap_tensor(targets))
         self.gym.set_dof_velocity_target_tensor(self.sim, gymtorch.unwrap_tensor(targets))
 

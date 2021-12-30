@@ -5,8 +5,14 @@ task:
     numEnvs: ${resolve_default:512,${...num_envs}}
     envSpacing: 4.0
     resetDist: 3.0
-    maxEffort: 400.0
     maxEpisodeLength: 500
+    stiffness: 0.0
+    damping: 10000.0
+    maxSpeed: 200.0
+    maxTorque: 2.5
+    friction: 0.0
+    angularDamping: 0.0
+    angularVelocity: 10000.0
     clipObservations: 5.0
     clipActions: 1.0
     asset:

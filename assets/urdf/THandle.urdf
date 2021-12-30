@@ -1,0 +1,79 @@
+<?xml version="1.0" ?>
+<robot name="THandle">
+  <material name="Black">
+    <color rgba="0.1 0.1 0.1 1"/>
+  </material>
+  <material name="Grey">
+    <color rgba="0.35 0.35 0.35 1"/>
+  </material>
+  <material name="Orange">
+    <color rgba=".9569 .5372 .2588 1"/>
+  </material>
+  <material name="Blue">
+    <color rgba=".0157 .1176 .6588 0.8"/>
+  </material>
+  <material name="Maize">
+    <color rgba=".9451 .7686 0 1"/>
+  </material>
+  <material name="LightGrey">
+    <color rgba="0.75 0.75 0.75 1"/>
+  </material>
+  <material name="Red">
+    <color rgba="0.8 0.1 0.1 1"/>
+  </material>
+  <material name="Green">
+    <color rgba="0.1 0.8 0.1 1"/>
+  </material>
+  <material name="Purple">
+    <color rgba="0.8 0.1 0.8 1"/>
+  </material>
+  <link name="Body">
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.1" length="1.0"/>
+      </geometry>
+      <material name="Blue">
+        <color rgba=".0157 .1176 .6588 0.8"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.1" length="1.0"/>
+      </geometry>
+      <!-- <contact_coefficient mu="0"  resitution="0"  k_p="0"  k_d="0" /> -->
+    </collision>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="1"/>
+    </inertial>
+  </link>
+  <link name="Top">
+    <visual>
+      <origin rpy="1.5708 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.1" length="2.0"/>
+      </geometry>
+      <material name="Maize">
+        <color rgba=".9451 .7686 0 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="1.5708 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.1" length="2.0"/>
+      </geometry>
+      <!-- <contact_coefficient mu="0"  resitution="0"  k_p="0"  k_d="0" /> -->
+    </collision>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="1"/>
+    </inertial>
+  </link>
+  <joint name="$fixed_Body_Top" type="fixed">
+    <origin rpy="0 0 0" xyz="0 0 0.5"/>
+    <parent link="Body"/>
+    <child link="Top"/>
+  </joint>
+</robot>

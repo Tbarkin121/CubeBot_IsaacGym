@@ -27,7 +27,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-from tasks.cubebot_working_old import CubeBot
+from tasks.cubebot import CubeBot
 
 # Mappings from strings to environments
 isaacgym_task_map = {
