@@ -1,0 +1,110 @@
+<?xml version="1.0" ?>
+<robot name="BikeWheel">
+  <material name="Black">
+    <color rgba="0.1 0.1 0.1 1"/>
+  </material>
+  <material name="Grey">
+    <color rgba="0.35 0.35 0.35 1"/>
+  </material>
+  <material name="Orange">
+    <color rgba=".9569 .5372 .2588 1"/>
+  </material>
+  <material name="Blue">
+    <color rgba=".0157 .1176 .6588 0.8"/>
+  </material>
+  <material name="Maize">
+    <color rgba=".9451 .7686 0 1"/>
+  </material>
+  <material name="LightGrey">
+    <color rgba="0.75 0.75 0.75 1"/>
+  </material>
+  <material name="Red">
+    <color rgba="0.8 0.1 0.1 1"/>
+  </material>
+  <material name="Green">
+    <color rgba="0.1 0.8 0.1 1"/>
+  </material>
+  <material name="Purple">
+    <color rgba="0.8 0.1 0.8 1"/>
+  </material>
+
+  <link name="z_rot_hinge">
+    <visual>
+      <geometry>
+        <sphere radius="0.1" />
+      </geometry>
+      <material name="Red">
+        <color rgba="0.8 0.1 0.1 1"/>
+      </material>
+    </visual>
+    <inertial>
+      <mass value="0.025" />
+    </inertial>
+  </link>
+  <link name="y_rot_hinge">
+    <inertial>
+      <mass value="0.025" />
+    </inertial>
+  </link>
+
+  <link name="Body">
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0.5"/>
+      <geometry>
+        <cylinder radius="0.05" length="1.0"/>
+      </geometry>
+      <material name="Blue">
+        <color rgba=".0157 .1176 .6588 0.8"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0.5"/>
+      <geometry>
+        <cylinder radius="0.1" length="1.0"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.025" />
+    </inertial>
+  </link>
+
+  <link name="Wheel">
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.25" length="0.1"/>
+      </geometry>
+      <material name="Maize">
+        <color rgba=".9451 .7686 0 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder radius="1" length="0.1"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1" />
+    </inertial>
+  </link>
+
+  <joint name="$z_rot" type="continuous">
+    <parent link="z_rot_hinge"/>
+    <child link="y_rot_hinge"/>
+    <axis xyz="0 0 1" />
+  </joint>
+  <joint name="$y_rot" type="continuous">
+    <parent link="y_rot_hinge"/>
+    <child link="Body"/>
+    <axis xyz="0 1 0" />
+  </joint>
+  <joint name="$wheel_rot" type="continuous">
+    <parent link="Body"/>
+    <child link="Wheel"/>
+    <axis xyz="0 0 1" />
+    <origin rpy="0 0 0" xyz="0 0 1"/>
+  </joint>
+
+
+</robot>

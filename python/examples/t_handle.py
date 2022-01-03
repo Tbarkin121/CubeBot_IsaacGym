@@ -1,23 +1,3 @@
-"""
-Copyright (c) 2020, NVIDIA CORPORATION. All rights reserved.
-
-NVIDIA CORPORATION and its licensors retain all intellectual property
-and proprietary rights in and to this software, related documentation
-and any modifications thereto. Any use, reproduction, disclosure or
-distribution of this software and related documentation without an express
-license agreement from NVIDIA CORPORATION is strictly prohibited.
-
-
-DOF control methods example
----------------------------
-An example that demonstrates various DOF control methods:
-- Load cartpole asset from an urdf
-- Get/set DOF properties
-- Set DOF position and velocity targets
-- Get DOF positions
-- Apply DOF efforts
-"""
-
 import math
 from isaacgym import gymapi
 from isaacgym import gymutil
@@ -36,9 +16,9 @@ sim_params.substeps = 10
 sim_params.dt = 1.0 / 60.0
 sim_params.gravity=gymapi.Vec3(0.0, 0.0, 0.0)
 
-sim_params.physx.solver_type = 1
-sim_params.physx.num_position_iterations = 10
-sim_params.physx.num_velocity_iterations = 5
+sim_params.physx.solver_type = 2
+sim_params.physx.num_position_iterations = 4
+sim_params.physx.num_velocity_iterations = 1
 
 sim_params.physx.num_threads = args.num_threads
 sim_params.physx.use_gpu = args.use_gpu
@@ -76,7 +56,7 @@ asset_options.max_angular_velocity = 1000
 print("Loading asset '%s' from '%s'" % (asset_file, asset_root))
 thandle_asset = gym.load_asset(sim, asset_root, asset_file, asset_options)
 
-# initial root pose for cartpole actors
+# initial root pose for actors
 initial_pose = gymapi.Transform()
 initial_pose.p = gymapi.Vec3(0.0, 2.0, 0.0)
 initial_pose.r = gymapi.Quat(-0.707107, 0.0, 0.0, 0.707107)
