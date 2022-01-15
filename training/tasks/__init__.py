@@ -28,8 +28,12 @@
 
 
 from tasks.cubebot import CubeBot
+from tasks.cubebot_wheelVel import CubeBot_WheelVel
+from tasks.cubebot_targetPos import CubeBot_TargPos
 
 # Mappings from strings to environments
 isaacgym_task_map = {
     "CubeBot": CubeBot,
+    "CubeBot_WheelVel": CubeBot_WheelVel,
+    "CubeBot_TargPos": CubeBot_TargPos,
 }

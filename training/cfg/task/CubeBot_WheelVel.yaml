@@ -1,5 +1,5 @@
 # used to create the object
-name: CubeBot
+name: CubeBot_WheelVel
 
 physics_engine: ${..physics_engine}
 

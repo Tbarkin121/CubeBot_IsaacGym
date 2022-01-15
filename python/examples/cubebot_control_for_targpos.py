@@ -26,8 +26,9 @@ import yaml
 import numpy as np
 import torch
 from isaacgym.torch_utils import *
+import time
 # load configuration data
-with open("../../training/cfg/task/CubeBot.yaml", "r") as cfg:
+with open("../../training/cfg/task/CubeBot_TargPos.yaml", "r") as cfg:
     try:
         cfg = yaml.safe_load(cfg)
     except yaml.YAMLError as exc:
@@ -58,7 +59,7 @@ sim_params.physx.num_velocity_iterations = 1
 sim_params.physx.num_threads = args.num_threads
 sim_params.physx.use_gpu = args.use_gpu
 
-# sim_params.gravity = gymapi.Vec3(0.0, 0.0, 0.0)
+# sim_params.gravity = gymapi.Vec3(0.0, -9.81/2, 0.0)
 
 sim_params.use_gpu_pipeline = False
 if args.use_gpu_pipeline:
@@ -110,9 +111,14 @@ env0 = gym.create_env(sim, env_lower, env_upper, 2)
 cubebot0 = gym.create_actor(env0, cubebot_asset, initial_pose, 'CubeBot', 0, 1)
 # Configure DOF properties
 props = gym.get_actor_dof_properties(env0, cubebot0)
-props["driveMode"][:] = gymapi.DOF_MODE_VEL
-props["stiffness"] = cfg["env"]["stiffness"]
-props['damping'][:] = cfg["env"]["damping"]
+control_mode = cfg["env"]["controlMode"]
+if(control_mode):
+    props["driveMode"][:] = gymapi.DOF_MODE_VEL
+else:
+    props["driveMode"][:] = gymapi.DOF_MODE_EFFORT
+
+props["stiffness"] = cfg["env"]["stiffness"] * control_mode
+props['damping'][:] = cfg["env"]["damping"] * control_mode
 props['velocity'][:] = cfg["env"]["maxSpeed"]
 props['effort'][:] = cfg["env"]["maxTorque"]
 props['friction'][:] = cfg["env"]["friction"]
@@ -139,7 +145,7 @@ loop_count = 1
 control_idx = 0
 target_speed = 0
 pair_idx = 0
-update_period = 500
+update_period = 100
 
 obs_buf = np.zeros(19)
 actor_root_state = gym.acquire_actor_root_state_tensor(sim)
@@ -170,27 +176,58 @@ while not gym.query_viewer_has_closed(viewer):
     # Every 100 steps, incriment the control_idx variable
     if(loop_count % update_period == 0):
         control_idx += 1
-        if(control_idx>2):
+        if(control_idx>5):
             control_idx = 0
             pair_idx += 1
             if(pair_idx > 2):
                 pair_idx = 0
+        print('new_control_idx, new_pair_idx = {}, {}'.format(control_idx, pair_idx))
+        # time.sleep(1)
 
-    target_torque = to_torch([0, 0, 0, 0, 0, 0], dtype=torch.float, device='cpu')
+    torque_tensor = to_torch([0, 0, 0, 0, 0, 0], dtype=torch.float, device='cpu')
+    action = 0
+    bangbang=True
     if(control_idx == 0):
-        target_speed = lerp(0, cfg["env"]["maxSpeed"], (loop_count % update_period)/update_period)
+        if(bangbang):
+            action = 1
+        else:
+            action = lerp(0, 1, (loop_count % update_period)/update_period)
+    elif(control_idx == 1):
+        action = 1
+    elif(control_idx == 2):
+        if(bangbang):
+            action = -1
+        else:
+            action = lerp(1, -1, (loop_count % update_period)/update_period)
+    elif(control_idx == 3):
+        action = -1
+    elif(control_idx == 4):
+        if(bangbang):
+            action = 0
+        else:
+            action = lerp(-1, 0, (loop_count % update_period)/update_period)
 
-    if(control_idx == 1):
-        target_speed = -lerp(cfg["env"]["maxSpeed"], -cfg["env"]["maxSpeed"], (loop_count % update_period)/update_period)
-
-    if(control_idx == 2):
-        target_speed = lerp(-cfg["env"]["maxSpeed"], 0, (loop_count % update_period)/update_period)
+    target_speed = action*cfg["env"]["maxSpeed"]
+    target_torque = action*cfg["env"]["maxTorque"] 
     
+
         
+    if(control_mode):
+        # Set the DOF target velocities
+        gym.set_dof_target_velocity(env0, dof_handles[2*pair_idx], target_speed)
+        gym.set_dof_target_velocity(env0, dof_handles[2*pair_idx+1], target_speed)
+    else:
+        offset = 2
+        max_available_torque = torch.clip(cfg["env"]["maxTorque"] - (offset*dof_vel/cfg["env"]["maxSpeed"] + (1-offset))*cfg["env"]["maxTorque"] , -cfg["env"]["maxTorque"], cfg["env"]["maxTorque"])
+        min_available_torque = torch.clip(-cfg["env"]["maxTorque"] - (offset*dof_vel/cfg["env"]["maxSpeed"] - (1-offset))*cfg["env"]["maxTorque"], -cfg["env"]["maxTorque"], cfg["env"]["maxTorque"])
+
+        torque_tensor[2*pair_idx] = np.clip(target_torque, min_available_torque[2*pair_idx], max_available_torque[2*pair_idx])
+        torque_tensor[2*pair_idx+1] = np.clip(target_torque, min_available_torque[2*pair_idx+1], max_available_torque[2*pair_idx+1]) 
+
+        print('target_torque = {}'.format(target_torque))
+        print('torque_tensor = {}'.format(torque_tensor))
+        gym.set_dof_actuation_force_tensor(sim, gymtorch.unwrap_tensor(torque_tensor))
     
-    # Set the DOF target velocities
-    gym.set_dof_target_velocity(env0, dof_handles[2*pair_idx], target_speed)
-    gym.set_dof_target_velocity(env0, dof_handles[2*pair_idx+1], target_speed)
     
 
     loop_count += 1 

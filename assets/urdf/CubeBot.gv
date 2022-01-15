@@ -1,0 +1,65 @@
+digraph G {
+node [shape=box];
+"CubeBody" [label="CubeBody"];
+"InertialWheel_1" [label="InertialWheel_1"];
+"WheelMarker_1" [label="WheelMarker_1"];
+"InertialWheel_2" [label="InertialWheel_2"];
+"WheelMarker_2" [label="WheelMarker_2"];
+"InertialWheel_3" [label="InertialWheel_3"];
+"WheelMarker_3" [label="WheelMarker_3"];
+"InertialWheel_4" [label="InertialWheel_4"];
+"WheelMarker_4" [label="WheelMarker_4"];
+"InertialWheel_5" [label="InertialWheel_5"];
+"WheelMarker_5" [label="WheelMarker_5"];
+"InertialWheel_6" [label="InertialWheel_6"];
+"WheelMarker_6" [label="WheelMarker_6"];
+"CornerBumper_1" [label="CornerBumper_1"];
+"CornerBumper_2" [label="CornerBumper_2"];
+"CornerBumper_3" [label="CornerBumper_3"];
+"CornerBumper_4" [label="CornerBumper_4"];
+"CornerBumper_5" [label="CornerBumper_5"];
+"CornerBumper_6" [label="CornerBumper_6"];
+"CornerBumper_7" [label="CornerBumper_7"];
+"CornerBumper_8" [label="CornerBumper_8"];
+node [shape=ellipse, color=blue, fontcolor=blue];
+"CubeBody" -> "$continuous_CubeBody_InertialWheel_1" [label="xyz: 0.15 0 0 \nrpy: 0 1.5708 -0"]
+"$continuous_CubeBody_InertialWheel_1" -> "InertialWheel_1"
+"InertialWheel_1" -> "$fixed_InertialWheel_1_WheelMarker_1" [label="xyz: 0 0 0 \nrpy: 0 -0 0"]
+"$fixed_InertialWheel_1_WheelMarker_1" -> "WheelMarker_1"
+"CubeBody" -> "$continuous_CubeBody_InertialWheel_2" [label="xyz: -0.15 0 0 \nrpy: 0 1.5708 -0"]
+"$continuous_CubeBody_InertialWheel_2" -> "InertialWheel_2"
+"InertialWheel_2" -> "$fixed_InertialWheel_2_WheelMarker_2" [label="xyz: 0 0 0 \nrpy: 0 -0 0"]
+"$fixed_InertialWheel_2_WheelMarker_2" -> "WheelMarker_2"
+"CubeBody" -> "$continuous_CubeBody_InertialWheel_3" [label="xyz: 0 0.15 0 \nrpy: 1.57075 -0 0"]
+"$continuous_CubeBody_InertialWheel_3" -> "InertialWheel_3"
+"InertialWheel_3" -> "$fixed_InertialWheel_3_WheelMarker_3" [label="xyz: 0 0 0 \nrpy: 0 -0 0"]
+"$fixed_InertialWheel_3_WheelMarker_3" -> "WheelMarker_3"
+"CubeBody" -> "$continuous_CubeBody_InertialWheel_4" [label="xyz: 0 -0.15 0 \nrpy: 1.57075 -0 0"]
+"$continuous_CubeBody_InertialWheel_4" -> "InertialWheel_4"
+"InertialWheel_4" -> "$fixed_InertialWheel_4_WheelMarker_4" [label="xyz: 0 0 0 \nrpy: 0 -0 0"]
+"$fixed_InertialWheel_4_WheelMarker_4" -> "WheelMarker_4"
+"CubeBody" -> "$continuous_CubeBody_InertialWheel_5" [label="xyz: 0 0 0.15 \nrpy: 0 -0 1.57075"]
+"$continuous_CubeBody_InertialWheel_5" -> "InertialWheel_5"
+"InertialWheel_5" -> "$fixed_InertialWheel_5_WheelMarker_5" [label="xyz: 0 0 0 \nrpy: 0 -0 0"]
+"$fixed_InertialWheel_5_WheelMarker_5" -> "WheelMarker_5"
+"CubeBody" -> "$continuous_CubeBody_InertialWheel_6" [label="xyz: 0 0 -0.15 \nrpy: 0 -0 1.57075"]
+"$continuous_CubeBody_InertialWheel_6" -> "InertialWheel_6"
+"InertialWheel_6" -> "$fixed_InertialWheel_6_WheelMarker_6" [label="xyz: 0 0 0 \nrpy: 0 -0 0"]
+"$fixed_InertialWheel_6_WheelMarker_6" -> "WheelMarker_6"
+"CubeBody" -> "$fixed_CubeBody_CornerBumper_1" [label="xyz: 0.15 0.15 0.15 \nrpy: 0 -0 0"]
+"$fixed_CubeBody_CornerBumper_1" -> "CornerBumper_1"
+"CubeBody" -> "$fixed_CubeBody_CornerBumper_2" [label="xyz: -0.15 0.15 0.15 \nrpy: 0 -0 0"]
+"$fixed_CubeBody_CornerBumper_2" -> "CornerBumper_2"
+"CubeBody" -> "$fixed_CubeBody_CornerBumper_3" [label="xyz: 0.15 -0.15 0.15 \nrpy: 0 -0 0"]
+"$fixed_CubeBody_CornerBumper_3" -> "CornerBumper_3"
+"CubeBody" -> "$fixed_CubeBody_CornerBumper_4" [label="xyz: -0.15 -0.15 0.15 \nrpy: 0 -0 0"]
+"$fixed_CubeBody_CornerBumper_4" -> "CornerBumper_4"
+"CubeBody" -> "$fixed_CubeBody_CornerBumper_5" [label="xyz: 0.15 0.15 -0.15 \nrpy: 0 -0 0"]
+"$fixed_CubeBody_CornerBumper_5" -> "CornerBumper_5"
+"CubeBody" -> "$fixed_CubeBody_CornerBumper_6" [label="xyz: -0.15 0.15 -0.15 \nrpy: 0 -0 0"]
+"$fixed_CubeBody_CornerBumper_6" -> "CornerBumper_6"
+"CubeBody" -> "$fixed_CubeBody_CornerBumper_7" [label="xyz: 0.15 -0.15 -0.15 \nrpy: 0 -0 0"]
+"$fixed_CubeBody_CornerBumper_7" -> "CornerBumper_7"
+"CubeBody" -> "$fixed_CubeBody_CornerBumper_8" [label="xyz: -0.15 -0.15 -0.15 \nrpy: 0 -0 0"]
+"$fixed_CubeBody_CornerBumper_8" -> "CornerBumper_8"
+}

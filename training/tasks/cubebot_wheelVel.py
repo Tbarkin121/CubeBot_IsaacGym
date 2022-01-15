@@ -5,8 +5,10 @@ import torch
 from isaacgym import gymutil, gymtorch, gymapi
 from isaacgym.torch_utils import *
 from tasks.base.vec_task import VecTask
+import matplotlib.pyplot as plt
+import time
 
-class CubeBot(VecTask):
+class CubeBot_WheelVel(VecTask):
     def __init__(self, cfg, sim_device, graphics_device_id, headless):
         self.cfg = cfg
 
@@ -31,7 +33,7 @@ class CubeBot(VecTask):
         self.dof_state = gymtorch.wrap_tensor(dof_state_tensor)
         self.dof_pos = self.dof_state.view(self.num_envs, self.num_dof, 2)[..., 0]
         self.dof_vel = self.dof_state.view(self.num_envs, self.num_dof, 2)[..., 1]
-        
+
         actor_root_state = self.gym.acquire_actor_root_state_tensor(self.sim)
         self.root_states = gymtorch.wrap_tensor(actor_root_state)
         self.root_pos = self.root_states.view(self.num_envs, 1, 13)[..., 0, 0:3] #num_envs, num_actors, 13 (pos,ori,Lvel,Avel)
@@ -51,12 +53,10 @@ class CubeBot(VecTask):
         self.x_unit_tensor = to_torch([1, 0, 0], dtype=torch.float, device=self.device).repeat((self.num_envs, 1))
         self.y_unit_tensor = to_torch([0, 1, 0], dtype=torch.float, device=self.device).repeat((self.num_envs, 1))
         self.z_unit_tensor = to_torch([0, 0, 1], dtype=torch.float, device=self.device).repeat((self.num_envs, 1))
-        
-        # Camera Settings
-        cam_pos = gymapi.Vec3(-2.0, -2.0, 1.0)
-        cam_target = gymapi.Vec3(0.0, 0.0, 0.0)
-        self.gym.viewer_camera_look_at(self.viewer, None, cam_pos, cam_target)
 
+        self.plot_buffer = []
+        self.penelty_accumulation = 0
+        
     def create_sim(self):
         # set the up axis to be z-up given that assets are y-up by default
         self.up_axis_idx = self.set_sim_params_up_axis(self.sim_params, 'z')
@@ -129,15 +129,31 @@ class CubeBot(VecTask):
             self.envs.append(env_ptr)
             self.cubebot_handles.append(cubebot_handle)
 
+            # target_pose = gymapi.Transform()
+            # target_handle = self.gym.create_actor(env_ptr, target_asset, target_pose, "target", i, 1, 0)
+            # self.gym.set_rigid_body_color(env_ptr, target_handle, 0, gymapi.MESH_VISUAL, gymapi.Vec3(0.2, 0.8, 0.2))
+            # self.target_handles.append(target_handle)
 
         self.body_dict = self.gym.get_actor_rigid_body_dict(env_ptr, cubebot_handle)
         for b in self.body_dict:
                 print(b)
                 
     def compute_reward(self):
+        # retrieve environment observations from buffer
+
+        # box_pos = self.obs_buf[:, 0:2]
+        # box_ori = self.obs_buf[:, 3:7]
+        # box_lin_vel = self.obs_buf[:, 7:10]
+        # box_ang_vel = self.obs_buf[:, 10:13]
+        # print(self.corner1_pos)
+        # print(self.corner1_pos.shape)
+
         self.rew_buf[:], self.reset_buf[:] = compute_cubebot_reward(
-            self.corner1_pos[:, 2], self.reset_buf, self.progress_buf, self.max_episode_length
+            self.corner1_pos[:, 2], self.obs_buf[:,13:19], self.reset_buf, self.progress_buf, self.max_episode_length
         )
+        penelty = torch.sum(torch.square(self.obs_buf[:,13:19]), dim=1)/6 # Wheel velocity observation is scaled between -1 and 1 
+        self.penelty_accumulation += penelty.cpu().detach().numpy()
+        # print('penelty = {}'.format(penelty))
 
     def compute_observations(self, env_ids=None):
         if env_ids is None:
@@ -159,11 +175,11 @@ class CubeBot(VecTask):
         self.obs_buf[env_ids, 16] = self.dof_vel[env_ids, 3].squeeze()/self.maxSpeed #Wheels 1 and 2 should be driven with the same signal
         self.obs_buf[env_ids, 17] = self.dof_vel[env_ids, 4].squeeze()/self.maxSpeed #Wheels 3 and 4 should be driven with the same signal
         self.obs_buf[env_ids, 18] = self.dof_vel[env_ids, 5].squeeze()/self.maxSpeed #Wheels 5 and 6 should be driven with the same signal 
-
+        self.plot_buffer.append(self.obs_buf[0:3, 13:19].cpu().detach().numpy())
         return self.obs_buf
 
     def reset_idx(self, env_ids):
-        positions = torch.zeros((len(env_ids), self.num_dof), device=self.device)
+        positions = 0.2 * (torch.rand((len(env_ids), self.num_dof), device=self.device) - 0.5)
         velocities = 0.5 * (torch.rand((len(env_ids), self.num_dof), device=self.device) - 0.5)
 
         self.dof_pos[env_ids, :] = positions[:]
@@ -194,6 +210,49 @@ class CubeBot(VecTask):
 
         self.reset_buf[env_ids] = 0
         self.progress_buf[env_ids] = 0
+        plt.plot([0,0,0])
+        plt.show()
+        cam_pos = gymapi.Vec3(10, 8, 1.5)
+        cam_target = gymapi.Vec3(0, 2, 1.5)
+        self.gym.viewer_camera_look_at(self.viewer, None, cam_pos, cam_target)
+        if(self.plot_buffer):
+            # print('Total Penelty Accumulated = {}'.format(self.penelty_accumulation))
+            print('Mean Penelty Accumulated for n envs = {}'.format(np.mean(np.array(self.penelty_accumulation))))
+            plot_data = np.array(self.plot_buffer)
+            # fig, (ax1, ax2, ax3) = plt.subplots(3, 1)
+            # fig.subplots_adjust(hspace=0.5)
+            # ax1.plot(plot_data[:,0,:])
+            # ax1.set_xlim(0,500)
+            # ax1.set_ylim(-1,1)
+            # ax1.set_xlabel('Steps')
+            # ax1.set_ylabel('Scaled Velocity')
+            # ax1.grid(True)
+
+            # ax2.plot(plot_data[:,1,:])
+            # ax2.set_xlim(0,500)
+            # ax2.set_ylim(-1,1)
+            # ax2.set_xlabel('Steps')
+            # ax2.set_ylabel('Scaled Velocity')
+            # ax2.grid(True)
+
+            # ax3.plot(plot_data[:,2,:])
+            # ax3.set_xlim(0,500)
+            # ax3.set_ylim(-1,1)
+            # ax3.set_xlabel('Steps')
+            # ax3.set_ylabel('Scaled Velocity')
+            # ax3.grid(True)
+            # plt.show()
+            for n in range(3):
+                plt.plot(plot_data[:,n,:])
+                plt.ylabel('Scaled Wheel Velocity')
+                plt.xlabel('Steps')
+                plt.grid()
+                plt.xlim([0, 500])
+                plt.ylim([-1.1, 1.1])
+                plt.show()
+
+            self.plot_buffer = []
+            self.penelty_accumulation = 0
 
     def pre_physics_step(self, actions):
         # print('actions')
@@ -204,8 +263,6 @@ class CubeBot(VecTask):
         self.actions = actions.clone().to(self.device)
         targets = self.actions*self.maxSpeed
         self.gym.set_dof_velocity_target_tensor(self.sim, gymtorch.unwrap_tensor(targets))
-        # print('Targets = {}'.format(targets))
-        # print('DOF_Vel = {}'.format(self.dof_vel))
 
     def post_physics_step(self):
         self.progress_buf += 1
@@ -222,11 +279,12 @@ class CubeBot(VecTask):
 
 
 @torch.jit.script
-def compute_cubebot_reward(corner_height, reset_buf, progress_buf, max_episode_length):
-    # type: (Tensor, Tensor, Tensor, float) -> Tuple[Tensor, Tensor]
+def compute_cubebot_reward(corner_height, wheel_speeds,
+                                reset_buf, progress_buf, max_episode_length):
+    # type: (Tensor, Tensor, Tensor, Tensor, float) -> Tuple[Tensor, Tensor]
 
-    reward = corner_height
-    
+    penelty = torch.sum(torch.square(wheel_speeds), dim=1)/6 # Wheel velocity observation is scaled between -1 and 1 
+    reward = corner_height - penelty*0.5
     reset = torch.where(progress_buf >= max_episode_length - 1, torch.ones_like(reset_buf), reset_buf)
 
     return reward, reset

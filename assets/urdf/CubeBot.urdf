@@ -340,6 +340,102 @@
       <inertia ixx="0.0010270833333333334" ixy="0" ixz="0" iyy="0.0010270833333333334" iyz="0.0" izz="0.00205"/>
     </inertial>
   </link>
+  <link name="WheelMarker_1">
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.1 0.02 0.02"/>
+      </geometry>
+      <!-- <contact_coefficient mu="0"  resitution="0"  k_p="0"  k_d="0" /> -->
+      <material name="Blue">
+        <color rgba=".0157 .1176 .6588 0.8"/>
+      </material>
+    </visual>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0.01"/>
+    </inertial>
+  </link>
+  <link name="WheelMarker_2">
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.1 0.02 0.02"/>
+      </geometry>
+      <!-- <contact_coefficient mu="0"  resitution="0"  k_p="0"  k_d="0" /> -->
+      <material name="Blue">
+        <color rgba=".0157 .1176 .6588 0.8"/>
+      </material>
+    </visual>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0.01"/>
+    </inertial>
+  </link>
+  <link name="WheelMarker_3">
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.1 0.02 0.02"/>
+      </geometry>
+      <!-- <contact_coefficient mu="0"  resitution="0"  k_p="0"  k_d="0" /> -->
+      <material name="Blue">
+        <color rgba=".0157 .1176 .6588 0.8"/>
+      </material>
+    </visual>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0.01"/>
+    </inertial>
+  </link>
+  <link name="WheelMarker_4">
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.1 0.02 0.02"/>
+      </geometry>
+      <!-- <contact_coefficient mu="0"  resitution="0"  k_p="0"  k_d="0" /> -->
+      <material name="Blue">
+        <color rgba=".0157 .1176 .6588 0.8"/>
+      </material>
+    </visual>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0.01"/>
+    </inertial>
+  </link>
+  <link name="WheelMarker_5">
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.1 0.02 0.02"/>
+      </geometry>
+      <!-- <contact_coefficient mu="0"  resitution="0"  k_p="0"  k_d="0" /> -->
+      <material name="Blue">
+        <color rgba=".0157 .1176 .6588 0.8"/>
+      </material>
+    </visual>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0.01"/>
+    </inertial>
+  </link>
+  <link name="WheelMarker_6">
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.1 0.02 0.02"/>
+      </geometry>
+      <!-- <contact_coefficient mu="0"  resitution="0"  k_p="0"  k_d="0" /> -->
+      <material name="Blue">
+        <color rgba=".0157 .1176 .6588 0.8"/>
+      </material>
+    </visual>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0.01"/>
+    </inertial>
+  </link>
   <joint name="$fixed_CubeBody_CornerBumper_1" type="fixed">
     <origin rpy="0 0 0" xyz="0.15 0.15 0.15"/>
     <parent link="CubeBody"/>
@@ -421,5 +517,35 @@
     <child link="InertialWheel_6"/>
     <axis xyz="0 0 1"/>
     <dynamics damping="0" friction="0"/>
+  </joint>
+  <joint name="$fixed_InertialWheel_1_WheelMarker_1" type="fixed">
+    <origin rpy="0 0 0" xyz="0 0 0.0001"/>
+    <parent link="InertialWheel_1"/>
+    <child link="WheelMarker_1"/>
+  </joint>
+  <joint name="$fixed_InertialWheel_2_WheelMarker_2" type="fixed">
+    <origin rpy="0 0 0" xyz="0 0 0.0001"/>
+    <parent link="InertialWheel_2"/>
+    <child link="WheelMarker_2"/>
+  </joint>
+  <joint name="$fixed_InertialWheel_3_WheelMarker_3" type="fixed">
+    <origin rpy="0 0 0" xyz="0 0 0.0001"/>
+    <parent link="InertialWheel_3"/>
+    <child link="WheelMarker_3"/>
+  </joint>
+  <joint name="$fixed_InertialWheel_4_WheelMarker_4" type="fixed">
+    <origin rpy="0 0 0" xyz="0 0 0.0001"/>
+    <parent link="InertialWheel_4"/>
+    <child link="WheelMarker_4"/>
+  </joint>
+  <joint name="$fixed_InertialWheel_5_WheelMarker_5" type="fixed">
+    <origin rpy="0 0 0" xyz="0 0 0.0001"/>
+    <parent link="InertialWheel_5"/>
+    <child link="WheelMarker_5"/>
+  </joint>
+  <joint name="$fixed_InertialWheel_6_WheelMarker_6" type="fixed">
+    <origin rpy="0 0 0" xyz="0 0 0.0001"/>
+    <parent link="InertialWheel_6"/>
+    <child link="WheelMarker_6"/>
   </joint>
 </robot>

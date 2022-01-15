@@ -24,14 +24,6 @@ from isaacgym import gymutil
 from isaacgym import gymtorch
 import yaml
 import numpy as np
-import torch
-from isaacgym.torch_utils import *
-# load configuration data
-with open("../../training/cfg/task/CubeBot.yaml", "r") as cfg:
-    try:
-        cfg = yaml.safe_load(cfg)
-    except yaml.YAMLError as exc:
-        print(exc)
 
 def lerp(val1, val2, ratio):
     if(ratio>1):
@@ -39,6 +31,13 @@ def lerp(val1, val2, ratio):
     if(ratio<0):
         ratio = 0
     return (1-ratio)*val1 + (ratio)*val2
+
+# load configuration data
+with open("../../training/cfg/task/CubeBot_TargPos.yaml", "r") as cfg:
+    try:
+        cfg = yaml.safe_load(cfg)
+    except yaml.YAMLError as exc:
+        print(exc)
 
 # initialize gym
 gym = gymapi.acquire_gym()
@@ -57,8 +56,6 @@ sim_params.physx.num_velocity_iterations = 1
 
 sim_params.physx.num_threads = args.num_threads
 sim_params.physx.use_gpu = args.use_gpu
-
-# sim_params.gravity = gymapi.Vec3(0.0, 0.0, 0.0)
 
 sim_params.use_gpu_pipeline = False
 if args.use_gpu_pipeline:
@@ -100,7 +97,7 @@ cubebot_asset = gym.load_asset(sim, asset_root, asset_file, asset_options)
 
 # initial root pose for cartpole actors
 initial_pose = gymapi.Transform()
-initial_pose.p = gymapi.Vec3(0.0, 0.5, 0.0)
+initial_pose.p = gymapi.Vec3(0.0, 2.0, 0.0)
 initial_pose.r = gymapi.Quat(-0.707107, 0.0, 0.0, 0.707107)
 
 # Create environment 0
@@ -139,7 +136,7 @@ loop_count = 1
 control_idx = 0
 target_speed = 0
 pair_idx = 0
-update_period = 500
+update_period = 100
 
 obs_buf = np.zeros(19)
 actor_root_state = gym.acquire_actor_root_state_tensor(sim)
@@ -170,30 +167,20 @@ while not gym.query_viewer_has_closed(viewer):
     # Every 100 steps, incriment the control_idx variable
     if(loop_count % update_period == 0):
         control_idx += 1
-        if(control_idx>2):
+        if(control_idx>1):
             control_idx = 0
-            pair_idx += 1
-            if(pair_idx > 2):
-                pair_idx = 0
-
-    target_torque = to_torch([0, 0, 0, 0, 0, 0], dtype=torch.float, device='cpu')
+    
     if(control_idx == 0):
-        target_speed = lerp(0, cfg["env"]["maxSpeed"], (loop_count % update_period)/update_period)
-
+        target_speed = lerp(0, -cfg["env"]["maxSpeed"], (loop_count % update_period)/update_period)
     if(control_idx == 1):
-        target_speed = -lerp(cfg["env"]["maxSpeed"], -cfg["env"]["maxSpeed"], (loop_count % update_period)/update_period)
+        target_speed = cfg["env"]["maxSpeed"]
 
-    if(control_idx == 2):
-        target_speed = lerp(-cfg["env"]["maxSpeed"], 0, (loop_count % update_period)/update_period)
-    
-        
-    
     # Set the DOF target velocities
     gym.set_dof_target_velocity(env0, dof_handles[2*pair_idx], target_speed)
     gym.set_dof_target_velocity(env0, dof_handles[2*pair_idx+1], target_speed)
-    
 
     loop_count += 1 
+
         
     gym.refresh_actor_root_state_tensor(sim)
     gym.refresh_dof_state_tensor(sim)

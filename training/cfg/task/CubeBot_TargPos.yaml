@@ -1,24 +1,27 @@
 # used to create the object
-name: CubeBot
+name: CubeBot_TargPos
 
 physics_engine: ${..physics_engine}
 
 # if given, will override the device setting in gym. 
 env:
-  numEnvs: ${resolve_default:512,${...num_envs}}
+  numEnvs: ${resolve_default:4096,${...num_envs}}
   envSpacing: 4.0
   resetDist: 3.0
-  maxEpisodeLength: 500
+  maxEpisodeLength: 2000
+  controlMode: 0 #0 for Torque Control, 1 for Vel Control. This multiplies to stiffness and damping (Both should be 0 for torque control) Cute right? 
   stiffness: 0.0
-  damping: 10000.0
+  damping: 100.0  #Controller looks like torque=posError*stiffness + velError*damping
   maxSpeed: 200.0
   maxTorque: 2
   friction: 0.0
-  angularDamping: 0.01
+  angularDamping: 0.0
   angularVelocity: 10000.0
 
   clipObservations: 5.0
   clipActions: 1.0
+
+  goalDist: 50
 
   asset:
     assetRoot: "../../assets"

@@ -117,6 +117,25 @@
         </link>
     </xacro:macro>
 
+    <xacro:macro name="WheelMarker" params="id_num cname color">
+        <link name="WheelMarker_${id_num}">
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <geometry>
+                    <box size="${WheelRadius2*1.25} ${WheelHeight*2} ${WheelHeight*2}"/> 
+                </geometry>
+                <!-- <contact_coefficient mu="0"  resitution="0"  k_p="0"  k_d="0" /> -->
+                <material name="${cname}">
+                    <color rgba="${color}"/>
+                </material>
+            </visual>
+            <inertial>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <mass value="0.01"/>
+            </inertial>
+        </link>
+    </xacro:macro>
+
     <!-- Joint Definitions -->
     <xacro:macro name="fixedJoint" params="parent child pos rot">
         <joint name="$fixed_${parent}_${child}" type="fixed">
@@ -151,6 +170,12 @@
     <xacro:InertialWheel id_num = "4" cname="Orange" color="${Orange}" />
     <xacro:InertialWheel id_num = "5" cname="Orange" color="${Orange}" />
     <xacro:InertialWheel id_num = "6" cname="Orange" color="${Orange}" />
+    <xacro:WheelMarker id_num = "1" cname="Blue" color="${Blue}" />
+    <xacro:WheelMarker id_num = "2" cname="Blue" color="${Blue}" />
+    <xacro:WheelMarker id_num = "3" cname="Blue" color="${Blue}" />
+    <xacro:WheelMarker id_num = "4" cname="Blue" color="${Blue}" />
+    <xacro:WheelMarker id_num = "5" cname="Blue" color="${Blue}" />
+    <xacro:WheelMarker id_num = "6" cname="Blue" color="${Blue}" />
 
     <!-- Joints -->
     <xacro:fixedJoint parent="CubeBody" child="CornerBumper_1" pos="${CornerOffset} ${CornerOffset} ${CornerOffset}" rot="0 0 0" />
@@ -167,4 +192,10 @@
     <xacro:continuous parent="CubeBody" child="InertialWheel_4" pos="0 -${WheelOffset} 0" rot="1.57075 0 0"  axis="0 0 1" damp="0" fric="0" />
     <xacro:continuous parent="CubeBody" child="InertialWheel_5" pos="0 0 ${WheelOffset}" rot="0 0 1.57075"  axis="0 0 1" damp="0" fric="0" />
     <xacro:continuous parent="CubeBody" child="InertialWheel_6" pos="0 0 -${WheelOffset}" rot="0 0 1.57075"  axis="0 0 1" damp="0" fric="0" />
+    <xacro:fixedJoint parent="InertialWheel_1" child="WheelMarker_1" pos="0 0 0.0001" rot="0 0 0" />
+    <xacro:fixedJoint parent="InertialWheel_2" child="WheelMarker_2" pos="0 0 0.0001" rot="0 0 0" />
+    <xacro:fixedJoint parent="InertialWheel_3" child="WheelMarker_3" pos="0 0 0.0001" rot="0 0 0" />
+    <xacro:fixedJoint parent="InertialWheel_4" child="WheelMarker_4" pos="0 0 0.0001" rot="0 0 0" />
+    <xacro:fixedJoint parent="InertialWheel_5" child="WheelMarker_5" pos="0 0 0.0001" rot="0 0 0" />
+    <xacro:fixedJoint parent="InertialWheel_6" child="WheelMarker_6" pos="0 0 0.0001" rot="0 0 0" />
 </robot>
