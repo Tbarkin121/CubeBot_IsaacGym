@@ -22,6 +22,7 @@ class CubeBot_TargPos(VecTask):
         self.maxTorque = self.cfg["env"]["maxTorque"]
         self.friction = self.cfg["env"]["friction"]
         self.angularDamping = self.cfg["env"]["angularDamping"]
+        self.angularVelocity = self.cfg["env"]["angularVelocity"]
         self.goal_dist = self.cfg["env"]["goalDist"]
        
         # cube root state (13) pos(3),ori(4),linvel(3),angvel(3)
@@ -94,8 +95,6 @@ class CubeBot_TargPos(VecTask):
         to_target[:, 2] = 0.0
         self.potentials = -torch.norm(to_target, p=2, dim=-1) / self.dt
         self.prev_potentials = self.potentials.clone()
-        # self.potentials = to_torch([-1000./self.dt], device=self.device).repeat(self.num_envs)
-        # self.prev_potentials = self.potentials.clone()
 
         self.goal_reset = torch.ones(self.num_envs, device=self.device, dtype=torch.long)
         goal_ids = self.goal_reset.nonzero(as_tuple=False).squeeze(-1)
@@ -152,13 +151,12 @@ class CubeBot_TargPos(VecTask):
         asset_options = gymapi.AssetOptions()
         asset_options.fix_base_link = False
         asset_options.angular_damping = self.angularDamping
-        asset_options.max_angular_velocity = self.maxSpeed
+        asset_options.max_angular_velocity = self.angularVelocity
 
         cubebot_asset = self.gym.load_asset(self.sim, asset_root, asset_file, asset_options)
         self.num_dof = self.gym.get_asset_dof_count(cubebot_asset)
         
         # self.num_actor = get_sim_actor_count
-        # self.num_rb = get_actor_rigid_body_count(cubebot_asset)
         goal_asset = self.gym.create_sphere(self.sim, 0.05)
         self.num_bodies = self.gym.get_asset_rigid_body_count(cubebot_asset) + self.gym.get_asset_rigid_body_count(goal_asset)
         

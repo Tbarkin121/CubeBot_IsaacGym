@@ -234,16 +234,7 @@ while not gym.query_viewer_has_closed(viewer):
         
     gym.refresh_actor_root_state_tensor(sim)
     gym.refresh_dof_state_tensor(sim)
-    obs_buf[0:3] = root_pos/100
-    obs_buf[3:7] = root_ori
-    obs_buf[7:10] = root_linvel/100
-    obs_buf[10:13] = root_angvel/100
-    obs_buf[13] = dof_vel[0].squeeze()/cfg["env"]["maxSpeed"] #Wheels 1 and 2 should be driven with the same signal
-    obs_buf[14] = dof_vel[1].squeeze()/cfg["env"]["maxSpeed"] #Wheels 3 and 4 should be driven with the same signal
-    obs_buf[15] = dof_vel[2].squeeze()/cfg["env"]["maxSpeed"] #Wheels 5 and 6 should be driven with the same signal 
-    obs_buf[16] = dof_vel[3].squeeze()/cfg["env"]["maxSpeed"] #Wheels 1 and 2 should be driven with the same signal
-    obs_buf[17] = dof_vel[4].squeeze()/cfg["env"]["maxSpeed"] #Wheels 3 and 4 should be driven with the same signal
-    obs_buf[18] = dof_vel[5].squeeze()/cfg["env"]["maxSpeed"] #Wheels 5 and 6 should be driven with the same signal 
+
     print('root_state')
     print(root_states)
     print('dof_state')
